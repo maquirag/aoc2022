@@ -19,3 +19,9 @@
     (is (= 157 (solve-d03-1 (input "dec03sample.txt")))))
   (testing "Day 3 Task 2 sample"
     (is (= 70 (solve-d03-2 (input "dec03sample.txt"))))))
+
+(deftest d04-sample-test
+  (testing "Day 4 Task 1 sample"
+    (is (= 2 (solve-d04-1 (input "dec04sample.txt")))))
+  (testing "Day 4 Task 2 sample"
+    (is (= 4 (solve-d04-2 (input "dec04sample.txt"))))))

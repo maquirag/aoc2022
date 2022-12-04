@@ -128,11 +128,43 @@
 
 ; Day 3 completed
 
+(defn d04-numbers [s]
+  (let [pair (split-by #"-" s)
+        [start end] (map read-string pair)]
+    (set (range start (inc end)))))
+
+(defn d04-ranges [[r1 r2]]
+  [(d04-numbers r1) (d04-numbers r2)])
+
+(defn d04-covered? [[r1 r2]]
+  (or (every? r1 r2) (every? r2 r1)))
+
+(defn solve-d04-1
+  "Day 4 Task 1"
+  [data]
+  (->> data
+       (split-by #"\n")
+       (map (partial split-by #","))
+       (map d04-ranges)
+       (filter d04-covered?)
+       count))
+
+(defn solve-d04-2
+  "Day 4 Task 2"
+  [data]
+  (->> data
+       (split-by #"\n")
+       (map (partial split-by #","))
+       (map d04-ranges)
+       (filter (fn [[r1 r2]] (some r1 r2)))
+       count))
+
 (comment
   (solve-d01-1 (input "dec01.txt"))
   (solve-d01-2 (input "dec01.txt"))
   (solve-d02-1 (input "dec02.txt"))
   (solve-d02-2 (input "dec02.txt"))
   (solve-d03-1 (input "dec03.txt"))
-  (solve-d03-2 (input "dec03.txt")))
-
+  (solve-d03-2 (input "dec03.txt"))
+  (solve-d04-1 (input "dec04.txt"))
+  (solve-d04-2 (input "dec04.txt")))
