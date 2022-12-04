@@ -11,6 +11,11 @@
   [file]
   (slurp (io/resource file)))
 
+(defn split-by
+  "Reverse split arguments for easier threading"
+  [regex text]
+  (str/split text regex))
+
 (defn d01-add-strings
   "Add numbers in a list of strings"
   [strings]
@@ -40,5 +45,57 @@
        (take 3)
        (reduce +)))
 
-(solve-d01-1 (input "dec01.txt"))
-(solve-d01-2 (input "dec01.txt"))
+; Day 1 completed
+
+(def d02-move-value {:rock 1 :paper 2 :scissors 3})
+
+(defn d02-match-value [[p1 p2]]
+  (cond
+    (= p1 p2) 3
+    (or (= [p1 p2] [:rock :scissors])
+        (= [p1 p2] [:paper :rock])
+        (= [p1 p2] [:scissors :paper])) 6
+    :else 0))
+
+
+(defn d02-parse-move [[m1 _ m2]]
+  (let [meaning {\A :rock \B :paper \C :scissors
+                 \X :rock \Y :paper \Z :scissors}]
+    (map meaning [m1 m2])))
+
+(defn d02-parse-expectation [[m1 _ m2]]
+  (let [meaning {\A :rock \B :paper \C :scissors
+                 \X :lose \Y :draw \Z :win}]
+    (map meaning [m1 m2])))
+
+(defn d02-determine-move [pattern]
+  (let [path {:rock {:win :paper :draw :rock :lose :scissors}
+              :paper {:win :scissors :draw :paper :lose :rock}
+              :scissors {:win :rock :draw :scissors :lose :paper}}]
+    (get-in path pattern)))
+
+(defn d02-p2-score [[p1 p2]]
+  (+ (d02-move-value p2) (d02-match-value [p2 p1])))
+
+(defn solve-d02-1
+  "Day 2 Task 1"
+  [data]
+  (let [moves (map d02-parse-move (str/split data #"\n"))]
+    (reduce + (map d02-p2-score moves))))
+
+(defn solve-d02-2 "Day 2 Task 2"
+  [data]
+  (->> data
+       (split-by #"\n")
+       (map d02-parse-expectation)
+       (map (fn [[enemy expected]]
+              [enemy (d02-determine-move [enemy expected])]))
+       (map d02-p2-score)
+       (reduce +)))
+
+(comment
+  (solve-d01-1 (input "dec01.txt"))
+  (solve-d01-2 (input "dec01.txt"))
+  (solve-d02-1 (input "dec02.txt"))
+  (solve-d02-2 (input "dec02.txt")))
+
