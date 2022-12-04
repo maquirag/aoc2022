@@ -83,7 +83,8 @@
   (let [moves (map d02-parse-move (str/split data #"\n"))]
     (reduce + (map d02-p2-score moves))))
 
-(defn solve-d02-2 "Day 2 Task 2"
+(defn solve-d02-2
+  "Day 2 Task 2"
   [data]
   (->> data
        (split-by #"\n")
@@ -93,9 +94,45 @@
        (map d02-p2-score)
        (reduce +)))
 
+; Day 2 completed
+
+(defn d03-compartmentalize [bag]
+  (split-at (/ (count bag) 2) bag))
+
+(defn d03-find-common [groups]
+  (first (apply clojure.set/intersection (map set groups))))
+
+(defn d03-item-value [item]
+  (let [offset (if (Character/isLowerCase item) 96 38)]
+    (- (int item) offset)))
+
+(defn solve-d03-1
+  "Day 3 Task 1"
+  [data]
+  (->> data
+       (split-by #"\n")
+       (map d03-compartmentalize)
+       (map d03-find-common)
+       (map d03-item-value)
+       (reduce +)))
+
+(defn solve-d03-2
+  "Day 3 Task 2"
+  [data]
+  (->> data
+       (split-by #"\n")
+       (partition 3)
+       (map d03-find-common)
+       (map d03-item-value)
+       (reduce +)))
+
+; Day 3 completed
+
 (comment
   (solve-d01-1 (input "dec01.txt"))
   (solve-d01-2 (input "dec01.txt"))
   (solve-d02-1 (input "dec02.txt"))
-  (solve-d02-2 (input "dec02.txt")))
+  (solve-d02-2 (input "dec02.txt"))
+  (solve-d03-1 (input "dec03.txt"))
+  (solve-d03-2 (input "dec03.txt")))
 
