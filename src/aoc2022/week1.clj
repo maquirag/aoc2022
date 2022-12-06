@@ -1,4 +1,4 @@
-(ns aoc2022.core
+(ns aoc2022.week1
   (:gen-class)
   (:require [clojure.java.io :as io]
             [clojure.string :as str]))
