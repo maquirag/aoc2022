@@ -56,12 +56,10 @@
 ; Day 6
 
 (defn find-marker [n msg]
-  (->> msg
-       (partition n 1)
+  (->> (partition n 1 msg)
        (map-indexed (fn [i s] [(+ n i) (set s)]))
        (filter #(= n (count (second %))))
-       first
-       first))
+       first first))
 
 (defn day6-task1 [data]
   (->> (first data) (find-marker 4)))
@@ -72,3 +70,41 @@
 (comment
   (day6-task1 (parse "dec06.txt"))
   (day6-task2 (parse "dec06.txt")))
+
+; Day 7
+
+(defn day7-task1 [data]
+  (loop [cmds (drop 1 data) cwd ["/"] dir {"/" {}}]
+    (if (empty? cmds) dir
+        (let [cmd (first cmds)
+              [w1 w2 & ws] (str/split cmd #" ")
+              newcwd (cond
+                   ;(every? #(Character/isDigit %) w1)
+                       (= cmd "$ cd ..") (drop-last cwd)
+                       (= [w1 w2] ["$" "cd"]) (into [] (concat cwd ws))
+                       :else cwd)
+              newdir (cond
+                       (= w1 "dir")
+                       (assoc-in dir cwd
+                                 (into (get-in dir cwd)
+                                       {w2 {}}))
+                       (every? #(Character/isDigit %) w1)
+                       (assoc-in dir cwd
+                                 (into (get-in dir cwd)
+                                       {w2 (Integer/parseInt w1)}))
+                       :else dir)]
+          (recur (drop 1 cmds) newcwd newdir)))))
+
+; TODO to finish
+
+
+(comment
+  (clojure.pprint/pprint (day7-task1 (parse "dec07sample.txt"))))
+
+; the lines must be traversed keeping cwd in state
+; directory structure represented as nested maps?
+; key is the name of file or directory
+; in case of dir, value is another map
+; in case of file, value is the size
+; state = ["/" "a"]
+; {"\" {"a" {}}}
