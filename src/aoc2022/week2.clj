@@ -167,3 +167,57 @@
    "a" {"f" 29116, "g" 2557, "h.lst" 62596, "e" {"i" 584}},
    "d" {"j" 4060174, "d.log" 8033020, "d.ext" 5626152, "k" 7214296}})
 
+; Day 8
+
+(defn raw->grid [lines]
+  (vec (map (fn [line] (vec (map #(Character/digit % 10) line))) lines)))
+
+(def transpose
+  (memoize (fn [grid] (vec (apply map vector grid)))))
+
+(defn visible? [m n grid]
+  (if (or (zero? m) (zero? n)
+          (= (inc m) (count grid))
+          (= (inc n) (count (first grid)))) true
+      (let [row (grid m)
+            col ((transpose grid) n)
+            left (subvec row 0 n)
+            right (subvec row (inc n))
+            top (subvec col 0 m)
+            bottom (subvec col (inc m))
+            tree (row n)]
+        (or (every? #(< % tree) left) (every? #(< % tree) right)
+            (every? #(< % tree) top) (every? #(< % tree) bottom)))))
+
+(defn tree-score [tree trees]
+  (inc (count (take-while #(< % tree) (butlast trees)))))
+
+(defn scenic-score [m n grid]
+  (let [row (grid m)
+        col ((transpose grid) n)
+        tree (row n)
+        left (tree-score tree (reverse (subvec row 0 n)))
+        right (tree-score tree (subvec row (inc n)))
+        top (tree-score tree (reverse (subvec col 0 m)))
+        bottom (tree-score tree (subvec col (inc m)))]
+    (* left right top bottom)))
+
+(defn day8-task1 [data]
+  (let [grid (raw->grid data)
+        visible (for [a (range (count grid))
+                      b (range (count (first grid)))]
+                  (visible? a b grid))]
+    (reduce + (map {true 1 false 0} visible))))
+
+(defn day8-task2 [data]
+  (let [grid (raw->grid data)
+        scenic (for [a (range 1 (dec (count grid)))
+                     b (range 1 (dec (count (first grid))))]
+                 (scenic-score a b grid))]
+    (apply max scenic)))
+
+(comment
+  (day8-task1 (parse "dec08sample.txt"))
+  (day8-task1 (parse "dec08.txt"))
+  (day8-task2 (parse "dec08sample.txt"))
+  (day8-task2 (parse "dec08.txt")))
