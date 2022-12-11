@@ -1,7 +1,8 @@
 (ns aoc2022.week1
   (:gen-class)
   (:require [clojure.java.io :as io]
-            [clojure.string :as str]))
+            [clojure.string :as str]
+            [clojure.set]))
 
 (defn -main []
   (println "Solving Advent of Code 2022"))

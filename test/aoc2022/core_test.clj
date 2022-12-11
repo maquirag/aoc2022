@@ -1,6 +1,6 @@
 (ns aoc2022.core-test
-  (:require [clojure.test :refer :all]
-            [aoc2022.util :refer :all]
+  (:require [clojure.test :refer [deftest is testing]]
+            [aoc2022.util :refer [parse]]
             [aoc2022.week1 :refer :all]
             [aoc2022.week2 :refer :all]))
 
@@ -30,5 +30,5 @@
 
 (deftest d06-sample-test
   (testing "Day 4 Task 1 sample"
-    (is (= 2 (day6-task1 (parse "dec06sample.txt"))))))
+    (is (= 5 (day6-task1 (parse "dec06sample.txt"))))))
 
