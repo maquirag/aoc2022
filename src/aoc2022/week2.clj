@@ -269,3 +269,27 @@
   (day9-task1 (parse "dec09.txt"))
   (day9-task2 (parse "dec09sample2.txt"))
   (day9-task2 (parse "dec09.txt")))
+
+; Day 10 - Cathode Ray Tube
+
+(defn eval-sign [line]
+  (if-let [num (re-find #"-?\d+" line)]
+    [0 (Integer/valueOf num)]
+    [0]))
+
+(defn day10-task1 [data]
+  (->> data
+       (map eval-sign)
+       (reduce into [0 1])
+       (reductions +)
+       (keep-indexed #(if (zero? (rem (- %1 20) 40)) (* %1 %2)))
+       (reduce +)))
+
+(defn day10-task2 [data]
+  (->> data))
+
+(comment
+  (day10-task1 (parse "dec10sample.txt"))
+  (day10-task1 (parse "dec10.txt"))
+  (day10-task2 (parse "dec10sample.txt"))
+  (day10-task2 (parse "dec10.txt")))
