@@ -209,9 +209,6 @@
     \U [x (inc y)]
     \D [x (dec y)]))
 
-(defn move-tail-bad [[hx hy] [tx ty]]
-  [(+ tx (int (/ (- hx tx) 2))) (+ ty (int (/ (- hy ty) 2)))])
-
 (defn move-tail [[hx hy] [tx ty]]
   (let [sx (- hx tx)
         sy (- hy ty)
@@ -220,13 +217,40 @@
     [(+ tx (if (every? #{-1 0 1} [sx sy]) 0 dx))
      (+ ty (if (every? #{-1 0 1} [sx sy]) 0 dy))]))
 
-(defn rope [[head tail visited] direction]
+(defn rope
+  "Advance the small rope with head and tail"
+  [[head tail visited] direction]
   (let [newhead (move-head head direction)
         newtail (move-tail newhead tail)]
     [newhead newtail (conj visited newtail)]))
 
-(defn rope-dir [state [dir times]]
+(defn rope-dir
+  "Get the next rope state.
+   State includes head, tail, and set of visited nodes.
+   Finally a vector of direction (RLUD) and the number of steps."
+  [state [dir times]]
   (reduce rope state (repeat times dir)))
+
+(defn long-rope
+  "Advance the long rope in one direction"
+  [[rope-parts visited] direction]
+  (let [new-parts
+        (loop [head [] tail rope-parts]
+          (if (empty? tail) head
+              (recur (if (empty? head)
+                       [(move-head (first tail) direction)]
+                       (conj head (move-tail (last head) (first tail))))
+                     (drop 1 tail))))]
+    [new-parts (conj visited (last new-parts))]))
+
+(defn long-rope-dir [state [dir times]]
+  (reduce long-rope state (repeat times dir)))
+
+(loop [head [] tail [[3 0] [2 0] [1 1]]]
+  (if (empty? tail) head
+      (recur (if (empty? head) [(move-head (first tail) \R)]
+                 (conj head (move-tail (last head) (first tail))))
+             (drop 1 tail))))
 
 (defn day9-task1 [data]
   (->> data
@@ -235,10 +259,13 @@
        last count))
 
 (defn day9-task2 [data]
-  data)
+  (->> data
+       (map rope-instr)
+       (reduce long-rope-dir [(into [] (repeat 10 [0 0])) #{[0 0]}])
+       last count))
 
 (comment
   (day9-task1 (parse "dec09sample.txt"))
   (day9-task1 (parse "dec09.txt"))
-  (day9-task2 (parse "dec09sample.txt"))
+  (day9-task2 (parse "dec09sample2.txt"))
   (day9-task2 (parse "dec09.txt")))
