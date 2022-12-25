@@ -29,6 +29,10 @@
     (is (= 4 (solve-d04-2 (input "dec04sample.txt"))))))
 
 (deftest d06-sample-test
-  (testing "Day 4 Task 1 sample"
+  (testing "Day 6 Task 1 sample"
     (is (= 5 (day6-task1 (parse "dec06sample.txt"))))))
+
+(deftest d09-sample-test
+  (testing "Day 9 Task 1 sample"
+    (is (= 13 (day9-task1 (parse "dec09sample.txt"))))))
 

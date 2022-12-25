@@ -122,6 +122,9 @@
           (recur (drop 1 cmds) newcwd newdir)))))
 
 ; TODO to finish
+; clojure.zip
+; clojure.walk
+; tree-seq
 
 
 (comment
@@ -137,35 +140,6 @@
 ; state = ["/" "a"]
 ; {"\" {"a" {}}}
 
-(defn map->edges [m]
-  (for [entry m
-        [x m] (tree-seq some? val entry)
-        ;y (or (keys m) [m])
-        ]
-    [x]))
-(def m
-  {:a {:b {:c nil
-           :d nil}
-       :e nil}})
-(map->edges m)
-;(map->edges d)
-
-; ideas from slack...
-(comment
-  (defn assign-size-to-directories [tree]
-    (walk/postwalk (fn [node]
-                     (if (map? node)
-                       {:size (reduce + (concat
-                                         (filter number? (vals node))
-                                         (keep :size (vals node))))
-                        :children node}
-                       node))
-                   tree))
-
-  {"b.txt" 14848514,
-   "c.dat" 8504156,
-   "a" {"f" 29116, "g" 2557, "h.lst" 62596, "e" {"i" 584}},
-   "d" {"j" 4060174, "d.log" 8033020, "d.ext" 5626152, "k" 7214296}})
 
 ; Day 8
 
@@ -221,3 +195,50 @@
   (day8-task1 (parse "dec08.txt"))
   (day8-task2 (parse "dec08sample.txt"))
   (day8-task2 (parse "dec08.txt")))
+
+; Day 9 - Rope Bridge
+
+(defn rope-instr [line]
+  (let [[dir times] (str/split line #" ")]
+    [(first dir) (Integer/valueOf times)]))
+
+(defn move-head [[x y] direction]
+  (condp = direction
+    \R [(inc x) y]
+    \L [(dec x) y]
+    \U [x (inc y)]
+    \D [x (dec y)]))
+
+(defn move-tail-bad [[hx hy] [tx ty]]
+  [(+ tx (int (/ (- hx tx) 2))) (+ ty (int (/ (- hy ty) 2)))])
+
+(defn move-tail [[hx hy] [tx ty]]
+  (let [sx (- hx tx)
+        sy (- hy ty)
+        dx (Integer/signum sx)
+        dy (Integer/signum sy)]
+    [(+ tx (if (every? #{-1 0 1} [sx sy]) 0 dx))
+     (+ ty (if (every? #{-1 0 1} [sx sy]) 0 dy))]))
+
+(defn rope [[head tail visited] direction]
+  (let [newhead (move-head head direction)
+        newtail (move-tail newhead tail)]
+    [newhead newtail (conj visited newtail)]))
+
+(defn rope-dir [state [dir times]]
+  (reduce rope state (repeat times dir)))
+
+(defn day9-task1 [data]
+  (->> data
+       (map rope-instr)
+       (reduce rope-dir [[0 0] [0 0] #{[0 0]}])
+       last count))
+
+(defn day9-task2 [data]
+  data)
+
+(comment
+  (day9-task1 (parse "dec09sample.txt"))
+  (day9-task1 (parse "dec09.txt"))
+  (day9-task2 (parse "dec09sample.txt"))
+  (day9-task2 (parse "dec09.txt")))
