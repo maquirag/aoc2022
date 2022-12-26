@@ -282,14 +282,28 @@
        (map eval-sign)
        (reduce into [0 1])
        (reductions +)
-       (keep-indexed #(if (zero? (rem (- %1 20) 40)) (* %1 %2)))
+       (keep-indexed #(when (zero? (rem (- %1 20) 40)) (* %1 %2)))
        (reduce +)))
 
+(defn sprite [x] #{(dec x) x (inc x)})
+
+(defn pixel [idx register] (if ((sprite register) (rem idx 40)) "#" "."))
+
 (defn day10-task2 [data]
-  (->> data))
+  (->> data
+       (map eval-sign)
+       (reduce into [1])
+       (reductions +)
+       (map-indexed pixel)
+       (partition 40)
+       (map #(apply str %))))
+
+(comment
+  (apply str (interpose "\n" (map str/join (partition 4 "############")))))
 
 (comment
   (day10-task1 (parse "dec10sample.txt"))
   (day10-task1 (parse "dec10.txt"))
   (day10-task2 (parse "dec10sample.txt"))
   (day10-task2 (parse "dec10.txt")))
+
